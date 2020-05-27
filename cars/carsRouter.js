@@ -1,6 +1,6 @@
 const express = require("express");
+const db = require("../data/knexConfig");
 
-const db = require("../Knex/knexConfig");
 
 const router = express.Router();
 
@@ -27,5 +27,22 @@ router.get("/:id", (req, res) => {
         res.status(500).json({ message: "Failed to get car by id"});
     });
 });
+
+//POST a Car
+router.post("/", (req, res) => {
+    const carSpecs = req.body;
+    db('cars').insert(carSpecs)
+    .then(ids => {
+        db('cars').where({ id: ids[0] })
+        .then(newCar => {
+            res.status(201).json(newCar)
+        });        
+    })
+    .catch(err => {
+        console.log('POST error', err);
+        res.status(500).json({ message: "Couldnt add car" });
+    });
+});
+
 
 module.exports = router;
